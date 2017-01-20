@@ -1,9 +1,9 @@
-http      = require "http"
-express   = require "express"
-socketio  = require "socket.io"
-ioClient  = require "socket.io-client"
-fs        = require "fs"
-SoxCommand     = require "sox-audio"
+http       = require "http"
+express    = require "express"
+socketio   = require "socket.io"
+ioClient   = require "socket.io-client"
+fs         = require "fs"
+SoxCommand = require "sox-audio"
 
 SERVICE_NAME = "audio-streamer"
 
@@ -29,6 +29,7 @@ app
     soxCommand
       .input("/home/stofstik/Downloads/Comfort_Fit_-_03_-_Sorry.mp3")
       .output(res)
+      .outputFileType("mp3")
       .addEffect("speed", 1.5)
 
     soxCommand.on "prepare", (args) ->
