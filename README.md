@@ -13,5 +13,5 @@ Needs Service Registry https://github.com/stofstik/service-registry
 - `gulp`
 
 ### Running
-Provide an mp3 file as first arg, otherwise default audio file will be `duck.mp3`
-e.g: node build/server/app.js ./some-file.mp3
+Provide an mp3 file as first arg, otherwise default audio file will be `duck.mp3`  
+e.g: `node build/server/app.js ./some-file.mp3`
