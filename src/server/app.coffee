@@ -5,7 +5,7 @@ ioClient   = require "socket.io-client"
 fs         = require "fs"
 SoxCommand = require "sox-audio"
 
-SERVICE_NAME = "audio-streamer"
+SERVICE_NAME = "audio-generator"
 
 log       = require "./lib/log"
 
@@ -21,7 +21,7 @@ servRegAddress = "http://localhost:3001"
 sockets = []
 
 app
-  .get "/audiostream.mp3", (req, res) ->
+  .get "/audio.mp3", (req, res) ->
     log.info "sending file"
     src1 = "/home/stofstik/Downloads/Comfort_Fit_-_03_-_Sorry.mp3"
     src2 = "/home/stofstik/Downloads/Kriss_-_03_-_jazz_club.mp3"
