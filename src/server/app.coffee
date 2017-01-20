@@ -8,6 +8,7 @@ SoxCommand = require "sox-audio"
 SERVICE_NAME = "audio-generator"
 
 log       = require "./lib/log"
+random    = require "./lib/random"
 
 # server without a handler we do not need to serve files
 app       = express()
@@ -20,28 +21,38 @@ servRegAddress = "http://localhost:3001"
 # collection of client sockets
 sockets = []
 
+audioFile = process.argv[2]
+
 app
   .get "/audio.mp3", (req, res) ->
     log.info "sending file"
-    src1 = "/home/stofstik/Downloads/Comfort_Fit_-_03_-_Sorry.mp3"
-    src2 = "/home/stofstik/Downloads/Kriss_-_03_-_jazz_club.mp3"
+    src1 = audioFile || "./duck.mp3"
     soxCommand = SoxCommand()
     soxCommand
-      .input("/home/stofstik/Downloads/Comfort_Fit_-_03_-_Sorry.mp3")
+      .input(src1)
+      .inputFileType("mp3")
       .output(res)
       .outputFileType("mp3")
-      .addEffect("speed", 1.5)
+      # add a touch of weirdness...
+      .addEffect("speed", random.hun(70, 120))
+      .addEffect("bass", "+#{random.int(0, 5)}")
+      .addEffect("vol", random.int(-1, 1))
+      .addEffect("pad", random.dec(0, 26))
+
+    if(random.int(0, 1) == 0)
+      soxCommand
+        .addEffect("swap", [])
 
     soxCommand.on "prepare", (args) ->
-      console.log "preparing with #{args.join ' '}"
+      log.info "preparing with #{args.join ' '}"
 
     soxCommand.on "start", (cmdline) ->
-      console.log "spawned sox with cmd: #{cmdline}"
+      log.info "spawned sox with cmd: #{cmdline}"
 
     soxCommand.on "error", (err, stdout, stderr) ->
-      console.log "cannot process audio #{err.message}"
-      console.log "sox command stdout #{stdout}"
-      console.log "sox command stderr #{stderr}"
+      log.info "cannot process audio #{err.message}"
+      log.info "sox command stdout #{stdout}"
+      log.info "sox command stderr #{stderr}"
 
     soxCommand.run()
 
