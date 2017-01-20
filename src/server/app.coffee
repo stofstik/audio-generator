@@ -34,10 +34,11 @@ app
       .output(res)
       .outputFileType("mp3")
       # add a touch of weirdness...
-      .addEffect("speed", random.hun(70, 120))
+      .addEffect("speed", random.hun(90, 110))
+      .addEffect("stretch", random.hun(90, 110))
       .addEffect("bass", "+#{random.int(0, 5)}")
-      .addEffect("vol", random.int(-1, 1))
-      .addEffect("pad", random.dec(0, 26))
+      .addEffect("vol", random.int(1, 1))
+      .addEffect("pad", random.dec(0, 40))
 
     if(random.int(0, 1) == 0)
       soxCommand
