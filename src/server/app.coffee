@@ -1,61 +1,59 @@
+fs         = require "fs"
 http       = require "http"
 express    = require "express"
 socketio   = require "socket.io"
 ioClient   = require "socket.io-client"
-fs         = require "fs"
+random     = require("random-js")()
 SoxCommand = require "sox-audio"
 
-SERVICE_NAME = "audio-generator"
-
-log       = require "./lib/log"
-random    = require "./lib/random"
+randHelper = require "./lib/rand-helper"
+log        = require "./lib/log"
 
 # server without a handler we do not need to serve files
 app       = express()
 server    = http.createServer app
 io        = socketio.listen server
 
+SERVICE_NAME = "audio-generator"
 # fixed location of service registry
 servRegAddress = "http://localhost:3001"
 
 # collection of client sockets
 sockets = []
 
-audioFile = process.argv[2]
-
 app
   .get "/audio.mp3", (req, res) ->
     log.info "sending file"
-    src1 = audioFile || "./duck.mp3"
-    soxCommand = SoxCommand()
-    soxCommand
-      .input(src1)
-      .inputFileType("mp3")
-      .output(res)
-      .outputFileType("mp3")
-      # add a touch of weirdness...
-      .addEffect("speed", random.hun(90, 110))
-      .addEffect("stretch", random.hun(90, 110))
-      .addEffect("bass", "+#{random.int(0, 5)}")
-      .addEffect("vol", random.int(1, 1))
-      .addEffect("pad", random.dec(0, 40))
-
-    if(random.int(0, 1) == 0)
+    # check if we have a source file as argument
+    audioFile = process.argv[2] || "./audio-files/applause-1.mp3"
+    fs.stat audioFile, (err, stats) ->
+      if(err)
+        log.info "could not find source file, using default"
+        audioFile = "./audio-files/applause-1.mp3"
+      soxCommand = SoxCommand()
       soxCommand
-        .addEffect("swap", [])
+        .input(audioFile)
+        .inputFileType("mp3")
+        .output(res)
+        .outputSampleRate(44100)
+        .outputFileType("mp3")
+        # add a touch of weirdness...
+        .addEffect("speed", randHelper.real(0.9, 1.1, true, 100))
+        .addEffect("bass", "+#{random.integer(0, 5)}")
+        .addEffect("treble", "+#{random.integer(0, 5)}")
+        .addEffect("vol", randHelper.real(-0.5, 0.5, true, 100))
+        .addEffect("pad", randHelper.real(0, 2, true, 100))
+        .addEffect("gain", "-n")
+      if(random.bool())
+        soxCommand
+          .addEffect("swap", [])
 
-    soxCommand.on "prepare", (args) ->
-      log.info "preparing with #{args.join ' '}"
+      soxCommand.on "error", (err, stdout, stderr) ->
+        log.info "cannot process audio #{err.message}"
+        log.info "sox command stdout #{stdout}"
+        log.info "sox command stderr #{stderr}"
 
-    soxCommand.on "start", (cmdline) ->
-      log.info "spawned sox with cmd: #{cmdline}"
-
-    soxCommand.on "error", (err, stdout, stderr) ->
-      log.info "cannot process audio #{err.message}"
-      log.info "sox command stdout #{stdout}"
-      log.info "sox command stderr #{stderr}"
-
-    soxCommand.run()
+      soxCommand.run()
 
 # websocket connection logic
 io.on "connection", (socket) ->
