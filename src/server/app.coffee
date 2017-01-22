@@ -21,6 +21,7 @@ servRegAddress = "http://localhost:3001"
 # collection of client sockets
 sockets = []
 
+# TODO check file size, only allow small files
 app
   .get "/audio.mp3", (req, res) ->
     log.info "sending file"
@@ -34,7 +35,7 @@ app
       soxCommand
         .input(audioFile)
         .inputFileType("mp3")
-        .output(res)
+        .output(res) # set response stream as output stream
         .outputSampleRate(44100)
         .outputFileType("mp3")
         # add a touch of weirdness...
@@ -48,11 +49,13 @@ app
         soxCommand
           .addEffect("swap", [])
 
+      # error logging
       soxCommand.on "error", (err, stdout, stderr) ->
         log.info "cannot process audio #{err.message}"
         log.info "sox command stdout #{stdout}"
         log.info "sox command stderr #{stderr}"
 
+      # run it!
       soxCommand.run()
 
 # websocket connection logic
