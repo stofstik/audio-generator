@@ -7,7 +7,7 @@ A service that hosts a file at a random port, generated with some random SoX opt
 Needs Service Registry https://github.com/stofstik/service-registry
 
 ### Installation
-- `sudo apt-get install sox`
+- `sudo apt-get install sox lame libsox-fmt-mp3`
 - `npm install -g gulp`
 - `npm install`
 - `gulp`
