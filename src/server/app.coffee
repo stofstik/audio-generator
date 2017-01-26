@@ -77,9 +77,6 @@ serviceRegistry = ioClient.connect servRegAddress,
 # when we are connected to the registry start the service
 serviceRegistry.on "connect", (socket) ->
   log.info "service registry connected"
-  # let the os choose a random port
-  server.listen 0
-  log.info "Listening on port", server.address().port
   # tell registry we are a service
   serviceRegistry.emit "service-up",
     name: SERVICE_NAME
@@ -87,3 +84,7 @@ serviceRegistry.on "connect", (socket) ->
 
 serviceRegistry.on "disconnect", () ->
   log.info "service registry disconnected"
+
+# let the os choose a random port
+server.listen 0
+log.info "Listening on port", server.address().port
